@@ -1,0 +1,27 @@
+# Blueprint de Render — al conectar el repo, Render lee este archivo y
+# crea el servicio del backend automáticamente.
+# Solo hay que pegar los valores de DATABASE_URL, JWT_SECRET y FRONTEND_URL.
+services:
+  - type: web
+    name: cortealum-backend
+    runtime: node
+    rootDir: backend
+    plan: free
+    # Instala dependencias + Chrome para Puppeteer (PDFs)
+    buildCommand: npm install && npx puppeteer browsers install chrome
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
+      # Chrome de Puppeteer se guarda en el caché del build de Render
+      - key: PUPPETEER_CACHE_DIR
+        value: /opt/render/project/.cache/puppeteer
+      - key: DATABASE_URL
+        sync: false   # ← pegar la URI de Supabase en el dashboard
+      - key: JWT_SECRET
+        sync: false   # ← pegar un secreto largo y aleatorio
+      - key: JWT_EXPIRES_IN
+        value: 8h
+      - key: FRONTEND_URL
+        sync: false   # ← pegar la URL de Vercel (ej: https://cortealum.vercel.app)

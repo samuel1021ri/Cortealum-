@@ -1,0 +1,31 @@
+{
+  "name": "cortealu-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "axios": "^1.6.5",
+    "lucide-react": "0.263.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-hot-toast": "^2.4.1",
+    "react-router-dom": "^6.21.0",
+    "react-scripts": "5.0.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build"
+  },
+  "eslintConfig": {
+    "extends": ["react-app", "react-app/jest"],
+    "rules": {
+      "no-unused-vars": "off",
+      "eqeqeq": "off",
+      "react-hooks/exhaustive-deps": "off"
+    }
+  },
+  "proxy": "http://localhost:5000",
+  "browserslist": {
+    "production": [">0.2%", "not dead", "not op_mini all"],
+    "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]
+  }
+}

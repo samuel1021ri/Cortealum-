@@ -1,0 +1,534 @@
+/* ======================================================
+   LOGIN / REGISTRO — CORTEALU v12
+   Fondo más oscuro para destacar animación de líneas
+   ====================================================== */
+
+.login-page {
+  --lbg:          #0D1117;
+  --lbg-deep:     #0A0E14;
+  --lcard:        #FFFFFF;
+  --lprimary:     #1565C0;
+  --lprimary-dk:  #0D47A1;
+  --lprimary-lt:  #E3F2FD;
+  --lprimary-glow:rgba(21,101,192,.18);
+  --lblue:        #1565C0;
+  --lblue-dk:     #0D47A1;
+  --lsteel-900:   #060910;
+  --lsteel-800:   #0D1117;
+  --lsteel-700:   #141922;
+  --lsteel-600:   #1C2433;
+  --lsteel-200:   #C8CDD4;
+  --lsteel-100:   #E8EAED;
+  --ltext:        #1A1D21;
+  --ltext-sec:    #52585F;
+  --ltext-muted:  #8C939B;
+  --lborder:      #DDD9D3;
+  --lborder-s:    #C4BDB5;
+  --lsuccess:     #1E7B4B;
+  --lsuccess-lt:  #E8F5EE;
+  --ldanger:      #C0392B;
+  --lshadow:      0 1px 4px rgba(26,29,33,.08), 0 4px 16px rgba(26,29,33,.06);
+  --lshadow-lg:   0 16px 60px rgba(0,0,0,.55), 0 4px 20px rgba(0,0,0,.35);
+  --lshadow-cu:   0 4px 20px rgba(21,101,192,.25);
+}
+
+/* ── Página base ── */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--lbg);
+  font-family: 'Barlow', sans-serif;
+  overflow-x: hidden;
+  position: relative;
+  padding: 40px 20px;
+}
+
+/* ── Canvas de sierra animado ── */
+.login-saw-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Fondo: grid tipo blueprint ── */
+.login-bg-grid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(21,101,192,.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(21,101,192,.09) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+/* ── Líneas diagonales bien visibles ── */
+.login-bg-lines {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: repeating-linear-gradient(
+    -55deg, transparent, transparent 70px,
+    rgba(21,101,192,.07) 70px, rgba(21,101,192,.07) 71px
+  );
+}
+
+/* Orbs de luz */
+.login-orb { position: fixed; z-index: 0; border-radius: 50%; filter: blur(120px); pointer-events: none; }
+.login-orb-1 {
+  width: 800px; height: 800px;
+  background: radial-gradient(circle, rgba(21,101,192,.18) 0%, transparent 65%);
+  top: -300px; right: -250px;
+  animation: orb1 12s ease-in-out infinite;
+}
+.login-orb-2 {
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(21,101,192,.14) 0%, transparent 65%);
+  bottom: -200px; left: -200px;
+  animation: orb2 14s ease-in-out infinite;
+}
+@keyframes orb1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-40px,35px)} }
+@keyframes orb2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(35px,-30px)} }
+
+/* ── Contenedor tarjeta ── */
+.login-container {
+  position: relative; z-index: 1;
+  display: flex; align-items: stretch;
+  width: 100%; max-width: 860px;
+  animation: slideUp 0.8s cubic-bezier(0.16,1,0.3,1) both;
+  box-shadow: var(--lshadow-lg);
+  border-radius: 22px;
+}
+.login-container.registro-container { max-width: 920px; }
+
+@keyframes slideUp { from{opacity:0;transform:translateY(40px)} to{opacity:1;transform:translateY(0)} }
+
+/* ══════════════════════════════════════
+   PANEL VISUAL LOGIN (izquierdo)
+   ══════════════════════════════════════ */
+.login-visual {
+  width: 380px; flex-shrink: 0;
+  border-radius: 22px 0 0 22px;
+  background: var(--lsteel-900);
+  border: 1px solid rgba(255,255,255,.06);
+  border-right: none;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Grid tipo blueprint oscuro */
+.login-blueprint-art {
+  flex: 1; min-height: 260px;
+  position: relative; overflow: hidden;
+  background: var(--lsteel-800);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.login-bp-art-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(21,101,192,.20) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(21,101,192,.20) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+.login-bp-art-grid::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    -50deg, transparent, transparent 50px,
+    rgba(21,101,192,.08) 50px, rgba(21,101,192,.08) 51px
+  );
+}
+.login-bp-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.login-visual-bottom { padding: 28px 30px; }
+.login-visual-logo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 42px; font-weight: 900;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: #fff; line-height: 1; margin-bottom: 8px;
+}
+.login-visual-logo span { color: var(--lprimary); }
+.login-visual-desc {
+  color: rgba(255,255,255,.45);
+  font-size: 13px; line-height: 1.65; margin-bottom: 22px;
+}
+
+.login-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.login-chip {
+  background: rgba(21,101,192,.12);
+  border: 1px solid rgba(21,101,192,.30);
+  color: #90CAF9;
+  font-size: 10px; font-weight: 800; letter-spacing: 1.2px;
+  text-transform: uppercase; padding: 4px 10px; border-radius: 20px;
+  display: flex; align-items: center; gap: 5px;
+}
+.login-chip-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--lprimary); }
+
+/* ══════════════════════════════════════
+   PANEL FORMULARIO LOGIN (derecho)
+   ══════════════════════════════════════ */
+.login-form-panel {
+  flex: 1;
+  background: var(--lcard);
+  border: 1px solid rgba(255,255,255,.08);
+  border-left: none;
+  border-radius: 0 22px 22px 0;
+  padding: 52px 46px;
+  display: flex; flex-direction: column; justify-content: center;
+}
+
+/* Etiqueta sistema */
+.login-sys-label {
+  display: inline-block;
+  background: var(--lprimary-lt);
+  color: var(--lprimary-dk);
+  font-size: 10px; font-weight: 800;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 4px 12px; border-radius: 20px;
+  border: 1px solid #f0d4c4;
+  margin-bottom: 16px;
+}
+
+.login-form-header { margin-bottom: 8px; }
+.login-form-header h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 2rem; font-weight: 900;
+  color: var(--ltext); margin-bottom: 4px; line-height: 1.1;
+  letter-spacing: -.01em;
+}
+.login-form-header p { color: var(--ltext-muted); font-size: .875rem; margin-bottom: 28px; }
+
+/* ── Tabs de identificación ── */
+.login-tabs {
+  display: flex;
+  background: var(--lsteel-100);
+  border-radius: 8px; padding: 3px; gap: 3px;
+  margin-bottom: 22px;
+  border: 1px solid var(--lborder);
+}
+.login-tab {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px;
+  padding: 9px 4px; border-radius: 6px;
+  font-family: 'Barlow', sans-serif;
+  font-size: 11px; font-weight: 800;
+  letter-spacing: .06em; text-transform: uppercase;
+  color: var(--ltext-muted); background: transparent; border: none;
+  cursor: pointer; transition: all 0.18s;
+}
+.login-tab:hover:not(.active) { color: var(--ltext-sec); background: rgba(255,255,255,.7); }
+.login-tab.active {
+  background: #fff; color: var(--lprimary);
+  box-shadow: 0 1px 6px rgba(26,29,33,.10); font-weight: 800;
+}
+
+/* ── Grupos de inputs ── */
+.form-group { margin-bottom: 16px; }
+.form-group label {
+  display: block; font-size: .75rem; font-weight: 800;
+  letter-spacing: .06em; text-transform: uppercase;
+  color: var(--ltext-sec); margin-bottom: 6px;
+}
+
+.input-icon-wrap { position: relative; }
+.input-icon {
+  position: absolute; left: 13px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--lprimary); pointer-events: none;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  background: #fafafa;
+  border: 1.5px solid var(--lborder);
+  border-radius: 8px;
+  padding: 11px 14px 11px 42px;
+  color: var(--ltext);
+  font-family: 'Barlow', sans-serif;
+  font-size: .9rem; outline: none; transition: all 0.2s;
+  -webkit-text-fill-color: var(--ltext);
+}
+.form-group input:focus,
+.form-group select:focus {
+  border-color: var(--lprimary);
+  box-shadow: 0 0 0 3px var(--lprimary-glow);
+  background: #fff;
+  color: var(--ltext);
+  -webkit-text-fill-color: var(--ltext);
+}
+.form-group input::placeholder {
+  color: var(--ltext-muted);
+  -webkit-text-fill-color: var(--ltext-muted);
+}
+.form-group select { appearance: none; cursor: pointer; }
+
+/* Autofill */
+.form-group input:-webkit-autofill,
+.form-group input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px #fff inset;
+  -webkit-text-fill-color: var(--ltext) !important;
+  caret-color: var(--ltext);
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+/* Contraseña */
+.pass-wrap { position: relative; }
+.pass-wrap input { padding-left: 42px; padding-right: 42px; }
+.pass-toggle {
+  position: absolute; right: 11px; top: 50%;
+  transform: translateY(-50%);
+  background: none; border: none; color: var(--ltext-muted);
+  cursor: pointer; display: flex; align-items: center;
+  padding: 4px; transition: color 0.2s;
+}
+.pass-toggle:hover { color: var(--lprimary); }
+
+/* ── Botón principal ── */
+.login-btn {
+  width: 100%; padding: 13px;
+  background: linear-gradient(135deg, var(--lprimary), var(--lprimary-dk));
+  color: #fff; border: none; border-radius: 8px;
+  font-family: 'Barlow', sans-serif;
+  font-size: .85rem; font-weight: 800;
+  letter-spacing: .07em; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s;
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-top: 6px;
+  box-shadow: 0 4px 20px rgba(21,101,192,.30);
+}
+.login-btn::after {
+  content:''; position: absolute; top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.10), transparent);
+  transition: left 0.45s;
+}
+.login-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1E88E5, var(--lprimary));
+  box-shadow: 0 6px 28px rgba(21,101,192,.45);
+  transform: translateY(-1px);
+}
+.login-btn:hover::after { left: 100%; }
+.login-btn:active { transform: translateY(0); }
+.login-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* Spinner */
+.login-spinner {
+  width: 15px; height: 15px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.35);
+  border-top-color: #fff;
+  animation: lspin 0.7s linear infinite;
+  display: inline-block; flex-shrink: 0;
+}
+@keyframes lspin { to { transform: rotate(360deg); } }
+
+/* Links */
+.login-register-link {
+  text-align: center; color: var(--ltext-muted);
+  font-size: .82rem; margin-top: 18px;
+}
+.login-register-link a {
+  color: var(--lprimary); font-weight: 700; text-decoration: none;
+}
+.login-register-link a:hover { color: var(--lprimary-dk); text-decoration: underline; }
+
+.login-footer {
+  margin-top: 18px; padding-top: 16px;
+  border-top: 1px solid var(--lborder);
+  text-align: center; font-size: .73rem;
+  color: #B0A89E; font-weight: 600; letter-spacing: .04em;
+}
+.login-footer span { color: var(--lprimary); }
+
+/* ══════════════════════════════════════
+   PANEL FORMULARIO REGISTRO (izquierdo)
+   ══════════════════════════════════════ */
+.registro-form-panel {
+  flex: 1;
+  background: var(--lcard);
+  border: 1px solid rgba(255,255,255,.08);
+  border-right: none;
+  border-radius: 22px 0 0 22px;
+  padding: 44px 46px;
+  display: flex; flex-direction: column;
+}
+
+/* Volver link */
+.login-back-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: .75rem; font-weight: 800; color: var(--ltext-muted);
+  text-decoration: none; text-transform: uppercase;
+  letter-spacing: .06em; margin-bottom: 28px;
+  transition: color 0.2s; align-self: flex-start;
+}
+.login-back-link:hover { color: var(--lprimary); }
+
+/* Grid 2 col */
+.grid-2 { display: flex; gap: 14px; }
+.grid-2 .form-group { flex: 1; min-width: 0; }
+.grid-2 .form-group input { padding-left: 14px; }
+
+/* Input con ícono */
+.r-inp-wrap { position: relative; }
+.r-ico {
+  position: absolute; left: 13px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--ltext-muted); pointer-events: none;
+}
+.r-inp-wrap input { padding-left: 38px !important; }
+
+/* Barra fuerza contraseña */
+.pass-strength-bars {
+  display: flex; gap: 4px; margin-top: 6px; margin-bottom: 4px;
+}
+.pass-bar {
+  flex: 1; height: 3px;
+  background: var(--lborder);
+  border-radius: 2px; transition: background 0.3s;
+}
+.pass-bar.s1 { background: var(--ldanger); }
+.pass-bar.s2 { background: #d97706; }
+.pass-bar.s3 { background: var(--lsuccess); }
+.pass-match-msg { font-size: .73rem; font-weight: 700; margin-bottom: 8px; margin-top: 2px; }
+
+/* Éxito registro */
+.registro-success { text-align: center; padding: 2rem 0; }
+.registro-success-icon {
+  width: 70px; height: 70px; border-radius: 50%;
+  background: var(--lsuccess-lt);
+  border: 1px solid rgba(30,123,75,.25);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1.25rem;
+}
+.registro-success h2 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.8rem; font-weight: 900;
+  color: var(--ltext); margin-bottom: 8px; letter-spacing: -.01em;
+}
+.registro-success p {
+  color: var(--ltext-muted); font-size: .9rem;
+  margin-bottom: 2rem; line-height: 1.6;
+}
+
+/* ══════════════════════════════════════
+   PANEL VISUAL REGISTRO (derecho)
+   ══════════════════════════════════════ */
+.registro-visual {
+  width: 320px; flex-shrink: 0;
+  border-radius: 0 22px 22px 0;
+  background: var(--lsteel-900);
+  border: 1px solid rgba(255,255,255,.06);
+  border-left: none;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.registro-visual-art {
+  flex: 1; min-height: 220px;
+  position: relative; background: var(--lsteel-800);
+  border-bottom: 1px solid rgba(255,255,255,.06); overflow: hidden;
+}
+.registro-art-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(21,101,192,.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(21,101,192,.12) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.registro-visual-art svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.registro-visual-bottom { padding: 24px 26px; }
+.registro-visual-logo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 32px; font-weight: 900;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: #fff; margin-bottom: 6px; line-height: 1;
+}
+.registro-visual-logo span { color: var(--lprimary); }
+.registro-visual-desc {
+  color: rgba(255,255,255,.40); font-size: 12px;
+  line-height: 1.65; margin-bottom: 16px;
+}
+.registro-access-list { list-style: none; padding: 0; margin: 0; }
+.registro-access-list li {
+  color: rgba(255,255,255,.50); font-size: 12px; padding: 6px 0;
+  display: flex; align-items: center; gap: 9px;
+  border-bottom: 1px solid rgba(255,255,255,.06); line-height: 1.3;
+}
+.registro-access-list li:last-child { border: none; }
+.registro-access-list li::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--lprimary); flex-shrink: 0;
+  box-shadow: 0 0 6px rgba(21,101,192,.6);
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVO — MEJORADO
+   ══════════════════════════════════════ */
+
+/* Tablet */
+@media (max-width: 900px) {
+  .login-visual, .registro-visual { display: none; }
+
+  .login-form-panel {
+    border-radius: 22px;
+    border: 1px solid rgba(255,255,255,.10);
+    padding: 44px 40px;
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    justify-content: flex-start;
+  }
+  .registro-form-panel {
+    border-radius: 22px;
+    border: 1px solid rgba(255,255,255,.10);
+    padding: 44px 40px;
+    width: 100%;
+    max-width: 540px;
+    margin: 0 auto;
+  }
+  .login-container,
+  .login-container.registro-container {
+    max-width: 540px;
+    justify-content: center;
+    box-shadow: 0 20px 70px rgba(0,0,0,.65), 0 4px 20px rgba(0,0,0,.40);
+  }
+}
+
+/* Mobile grande */
+@media (max-width: 600px) {
+  .login-page {
+    padding: 20px 14px;
+    align-items: flex-start;
+    padding-top: 32px;
+  }
+  .login-form-panel,
+  .registro-form-panel {
+    padding: 36px 26px;
+    border-radius: 18px;
+  }
+  .login-container,
+  .login-container.registro-container {
+    max-width: 100%;
+  }
+}
+
+/* Mobile pequeño */
+@media (max-width: 420px) {
+  .login-page { padding: 16px 10px; padding-top: 24px; }
+  .login-form-panel,
+  .registro-form-panel { padding: 30px 18px; border-radius: 16px; }
+  .login-form-header h2 { font-size: 1.7rem; }
+  .grid-2 { flex-direction: column; gap: 0; }
+  .login-tabs { gap: 2px; padding: 2px; }
+  .login-tab { font-size: 10px; padding: 8px 2px; }
+}
+
+/* ══════════════════════════════════════
+   ANIMACIÓN DE SOLDADURA — CONTORNO TARJETA
+   ══════════════════════════════════════ */
+
+/* Wrapper para la animación de soldadura */
+.login-form-panel,
+.registro-form-panel {
+  position: relative;
+}
+

@@ -1,0 +1,18 @@
+# Dependencias
+node_modules/
+
+# Secretos — NUNCA subir los .env reales
+.env
+.env.local
+.env.production
+
+# Builds
+frontend/build/
+dist/
+
+# Subidas de usuarios (fotos de materiales) — en Render el disco es efímero
+backend/uploads/
+
+# Sistema
+.DS_Store
+*.log
