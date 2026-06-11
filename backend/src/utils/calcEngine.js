@@ -5,8 +5,8 @@
  * Descuento del vano: A = vano_ancho - DESCUENTO_VANO_CM
  *                     H = vano_alto  - DESCUENTO_VANO_CM
  *
- * El DESCUENTO_VANO_CM se define en config/constants.js (por defecto 3 cm).
- * Si trabajas en MM, se convierte automáticamente: 3 cm → 30 mm.
+ * El DESCUENTO_VANO_CM se define en config/constants.js (por defecto 0.3 cm).
+ * Si trabajas en MM, se convierte automáticamente: 0.3 cm → 3 mm.
  *
  * IDs BD: perfil 1=744, 2=5020, 3=8025 | sistema 1=Tradicional, 2=Línea90, 3=Híbrida
  * Diseños: 1=XX, 2=0X, 3=X0X, 4=0XX0, 5=XXX
@@ -17,11 +17,15 @@
  * - EMPAQUE y FELPA: calculados con fórmulas exactas de los xlsx por combinación
  */
 
-// Cargar constante de descuento (configurable por env DESCUENTO_VANO_CM)
-let DESCUENTO_VANO_CM = 3;
+// Cargar constante de descuento (configurable por env DESCUENTO_VANO_CM).
+// FIX: el fallback debe ser 0.3 (no 3). Si por algún motivo no carga
+// config/constants.js, antes caía a 3 cm = descuento 10× mayor, lo que daba
+// dimensiones, cortes y materiales TODOS mal sin lanzar ningún error. Ahora el
+// fallback coincide con el valor real de los Excel oficiales (0.3 cm).
+let DESCUENTO_VANO_CM = 0.3;
 try {
   DESCUENTO_VANO_CM = require('../config/constants').DESCUENTO_VANO_CM;
-} catch { /* fallback al default si no hay config */ }
+} catch { /* fallback al default 0.3 si no hay config */ }
 
 const r2 = n => Math.round(n * 100) / 100;
 
