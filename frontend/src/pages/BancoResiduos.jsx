@@ -584,13 +584,13 @@ export default function BancoResiduos() {
                       onMouseEnter={e => e.currentTarget.style.background = 'var(--primary-light)'}
                       onMouseLeave={e => e.currentTarget.style.background = idx % 2 === 0 ? 'var(--surface)' : 'var(--surface-2)'}
                     >
-                      <td style={{ padding: '10px 14px', color: 'var(--text-muted)', fontSize: '.8rem' }}>
+                      <td style={{ padding: '10px 14px', color: 'var(--text-muted)', fontSize: '.8rem', whiteSpace: 'nowrap' }}>
                         {r.id_residuo}
                       </td>
                       <td style={{ padding: '10px 14px' }}>
                         <span style={{
                           background: 'var(--primary-light)', color: 'var(--primary)',
-                          padding: '2px 9px', borderRadius: 6,
+                          padding: '2px 9px', borderRadius: 6, display: 'inline-block', whiteSpace: 'nowrap',
                           fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '.8rem',
                         }}>
                           {r.referencia_perfil}
@@ -626,14 +626,14 @@ export default function BancoResiduos() {
                         fontFamily: 'var(--font-mono)',
                         fontSize: '.78rem',
                         fontWeight: 700,
-                        color: r.referencia_aln ? 'var(--text-primary)' : 'var(--text-muted)',
+                        color: r.referencia_aln ? 'var(--text-primary)' : 'var(--text-muted)', whiteSpace: 'nowrap',
                       }}>
                         {r.referencia_aln || '—'}
                       </td>
-                      <td style={{ padding: '10px 14px', color: 'var(--text-secondary)', fontSize: '.82rem' }}>
+                      <td style={{ padding: '10px 14px', color: 'var(--text-secondary)', fontSize: '.82rem', whiteSpace: 'nowrap' }}>
                         {r.color_perfil || '—'}
                       </td>
-                      <td style={{ padding: '10px 14px' }}>
+                      <td style={{ padding: '10px 14px', whiteSpace: 'nowrap' }}>
                         <span style={{
                           fontFamily: 'var(--font-mono)', fontWeight: 800,
                           color: 'var(--success)', fontSize: '1rem',
@@ -641,7 +641,7 @@ export default function BancoResiduos() {
                           {r.longitud_cm} <span style={{ fontSize: '.7rem', fontWeight: 500, color: 'var(--text-muted)' }}>cm</span>
                         </span>
                       </td>
-                      <td style={{ padding: '10px 14px', color: 'var(--text-muted)', fontSize: '.8rem', fontFamily: 'var(--font-mono)' }}>
+                      <td style={{ padding: '10px 14px', color: 'var(--text-muted)', fontSize: '.8rem', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
                         {r.longitud_original_cm ? `${r.longitud_original_cm} cm` : '—'}
                       </td>
                       {/* FIX v39: "Proyecto origen" ahora muestra SOLO el
@@ -663,7 +663,7 @@ export default function BancoResiduos() {
                           {r.creado_por_nombre || '—'}
                         </div>
                       </td>
-                      <td style={{ padding: '10px 14px' }}>
+                      <td style={{ padding: '10px 14px', whiteSpace: 'nowrap' }}>
                         <EstadoBadge estado={r.estado} />
                         {r.minutos_reserva_restantes !== null && r.minutos_reserva_restantes !== undefined && (
                           <div style={{ fontSize: '.68rem', color: r.minutos_reserva_restantes < 5 ? 'var(--danger)' : 'var(--warning)', marginTop: 2 }}>
