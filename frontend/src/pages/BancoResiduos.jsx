@@ -267,6 +267,16 @@ export default function BancoResiduos() {
   // FIX v45: modal de detalle del residuo (datos + historial completo)
   const [detalle, setDetalle]           = useState(null);   // { residuo, historial }
   const [detalleLoading, setDetalleLoading] = useState(false);
+
+  // FIX v77: detección de móvil. En celular la tabla (11 columnas) se desliza
+  // de lado con un ancho mínimo; en pantalla grande NO se fuerza ese mínimo,
+  // así se acomoda sola y no aparece scroll horizontal innecesario.
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth < 900);
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 900);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
   const [detalleOpenId, setDetalleOpenId]   = useState(null);
 
   // Abrir el modal de detalle de un residuo
@@ -559,12 +569,12 @@ export default function BancoResiduos() {
               </div>
             ) : (
               <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-              <table style={{ width: '100%', minWidth: 980, borderCollapse: 'collapse' }}>
+              <table style={{ width: '100%', minWidth: isMobile ? 900 : undefined, borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: 'var(--bg-deep)', borderBottom: '2px solid var(--border)' }}>
                     {['#', 'Perfil', 'Pieza', 'Ref. ALN', 'Color', 'Longitud', 'Barra original', 'Proyecto origen', 'Dejado por', 'Estado', 'Acciones'].map(h => (
                       <th key={h} style={{
-                        padding: '10px 14px', textAlign: 'left', whiteSpace: 'nowrap',
+                        padding: '9px 10px', textAlign: 'left', whiteSpace: 'nowrap',
                         fontFamily: 'var(--font-display)', fontSize: '.72rem',
                         fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em',
                         color: 'var(--text-muted)',
@@ -584,10 +594,10 @@ export default function BancoResiduos() {
                       onMouseEnter={e => e.currentTarget.style.background = 'var(--primary-light)'}
                       onMouseLeave={e => e.currentTarget.style.background = idx % 2 === 0 ? 'var(--surface)' : 'var(--surface-2)'}
                     >
-                      <td style={{ padding: '10px 14px', color: 'var(--text-muted)', fontSize: '.8rem', whiteSpace: 'nowrap' }}>
+                      <td style={{ padding: '9px 10px', color: 'var(--text-muted)', fontSize: '.8rem', whiteSpace: 'nowrap' }}>
                         {r.id_residuo}
                       </td>
-                      <td style={{ padding: '10px 14px' }}>
+                      <td style={{ padding: '9px 10px' }}>
                         <span style={{
                           background: 'var(--primary-light)', color: 'var(--primary)',
                           padding: '2px 9px', borderRadius: 6, display: 'inline-block', whiteSpace: 'nowrap',
@@ -600,7 +610,7 @@ export default function BancoResiduos() {
                           (CABEZAL, SILLAR, JAMBA, etc.). Crítica porque un
                           sillar no se puede usar para un cabezal aunque sean
                           del mismo perfil. */}
-                      <td style={{ padding: '10px 14px' }}>
+                      <td style={{ padding: '9px 10px' }}>
                         {r.ubicacion_pieza ? (
                           <span style={{
                             background: 'var(--bg-deep)', color: 'var(--text-secondary)',
@@ -622,7 +632,7 @@ export default function BancoResiduos() {
                           ALN son LA MISMA barra físicamente, aunque vengan
                           de sistemas distintos. */}
                       <td style={{
-                        padding: '10px 14px',
+                        padding: '9px 10px',
                         fontFamily: 'var(--font-mono)',
                         fontSize: '.78rem',
                         fontWeight: 700,
@@ -630,10 +640,10 @@ export default function BancoResiduos() {
                       }}>
                         {r.referencia_aln || '—'}
                       </td>
-                      <td style={{ padding: '10px 14px', color: 'var(--text-secondary)', fontSize: '.82rem', whiteSpace: 'nowrap' }}>
+                      <td style={{ padding: '9px 10px', color: 'var(--text-secondary)', fontSize: '.82rem', whiteSpace: 'nowrap' }}>
                         {r.color_perfil || '—'}
                       </td>
-                      <td style={{ padding: '10px 14px', whiteSpace: 'nowrap' }}>
+                      <td style={{ padding: '9px 10px', whiteSpace: 'nowrap' }}>
                         <span style={{
                           fontFamily: 'var(--font-mono)', fontWeight: 800,
                           color: 'var(--success)', fontSize: '1rem',
@@ -641,7 +651,7 @@ export default function BancoResiduos() {
                           {r.longitud_cm} <span style={{ fontSize: '.7rem', fontWeight: 500, color: 'var(--text-muted)' }}>cm</span>
                         </span>
                       </td>
-                      <td style={{ padding: '10px 14px', color: 'var(--text-muted)', fontSize: '.8rem', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
+                      <td style={{ padding: '9px 10px', color: 'var(--text-muted)', fontSize: '.8rem', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
                         {r.longitud_original_cm ? `${r.longitud_original_cm} cm` : '—'}
                       </td>
                       {/* FIX v39: "Proyecto origen" ahora muestra SOLO el
@@ -649,7 +659,7 @@ export default function BancoResiduos() {
                           r.ubicacion_pieza` mezclaba dos conceptos en una
                           misma celda; ahora la pieza está en su columna
                           dedicada y el proyecto se ve solo. */}
-                      <td style={{ padding: '10px 14px', color: 'var(--text-secondary)', fontSize: '.82rem', maxWidth: 160 }}>
+                      <td style={{ padding: '9px 10px', color: 'var(--text-secondary)', fontSize: '.82rem', maxWidth: 160 }}>
                         <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {r.proyecto_origen || '—'}
                         </div>
@@ -658,12 +668,12 @@ export default function BancoResiduos() {
                           última vez (se actualiza con cada reutilización, ver
                           fix v43). Antes solo se veía el proyecto, no la persona
                           responsable física de la pieza. */}
-                      <td style={{ padding: '10px 14px', color: 'var(--text-secondary)', fontSize: '.82rem', maxWidth: 150 }}>
+                      <td style={{ padding: '9px 10px', color: 'var(--text-secondary)', fontSize: '.82rem', maxWidth: 150 }}>
                         <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {r.creado_por_nombre || '—'}
                         </div>
                       </td>
-                      <td style={{ padding: '10px 14px', whiteSpace: 'nowrap' }}>
+                      <td style={{ padding: '9px 10px', whiteSpace: 'nowrap' }}>
                         <EstadoBadge estado={r.estado} />
                         {r.minutos_reserva_restantes !== null && r.minutos_reserva_restantes !== undefined && (
                           <div style={{ fontSize: '.68rem', color: r.minutos_reserva_restantes < 5 ? 'var(--danger)' : 'var(--warning)', marginTop: 2 }}>
@@ -671,7 +681,7 @@ export default function BancoResiduos() {
                           </div>
                         )}
                       </td>
-                      <td style={{ padding: '10px 14px' }}>
+                      <td style={{ padding: '9px 10px' }}>
                         <div style={{ display: 'flex', gap: 6 }}>
                           {/* FIX v45: Ver detalle + historial completo del residuo */}
                           <button
