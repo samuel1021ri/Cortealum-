@@ -273,9 +273,11 @@
   .app-logo-name { font-size: 1.1rem; }
   .app-logo-img { height: 30px; }
   .floating-nav { bottom: 20px; right: 18px; }
-  /* FIX v78: el banner del dashboard iguala el padding real del móvil para que
-     no se meta bajo el header (cortando el saludo) ni se salga por los lados. */
-  .dashboard-banner { margin: -4.5rem -1rem 1.5rem !important; height: 240px !important; }
+  /* FIX v79: el header es position:fixed (flota encima). Cualquier margen-top
+     negativo mete el banner debajo de él y corta el saludo. En celular se deja
+     margin-top:0 → el banner queda justo debajo del header, completo. Los lados
+     sí van con bleed negativo para que ocupe todo el ancho. */
+  .dashboard-banner { margin: 0 -1rem 1.5rem !important; height: 220px !important; }
 }
 @media (max-width: 480px) {
   .main-content { padding: 4rem .75rem 2rem; }
@@ -283,5 +285,5 @@
   .nav-bubble-btn { width: 52px; height: 52px; }
   .nav-item-label { font-size: .75rem; padding: 6px 12px; }
   .nav-item-icon { width: 42px; height: 42px; }
-  .dashboard-banner { margin: -4rem -.75rem 1.25rem !important; height: 215px !important; }
+  .dashboard-banner { margin: 0 -.75rem 1.25rem !important; height: 200px !important; }
 }
