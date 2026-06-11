@@ -50,12 +50,25 @@ api.interceptors.response.use(
 
     // 400 PASSWORD_REQUIRED → primer intento (no se envió contraseña)
     // 401 PASSWORD_MISMATCH → reintento (contraseña incorrecta)
-    // En ambos casos, abrir/reabrir el modal y reintentar la petición.
     const code = err.response?.data?.code;
     const status = err.response?.status;
+
+    // BUG FIX: si la petición YA trae contraseña en el body, significa que un
+    // modal local (ConfirmDeleteModal) está manejando la confirmación. En ese
+    // caso NO interceptamos — dejamos que el error suba al modal, que muestra
+    // "contraseña incorrecta" y permite reintentar con la nueva clave en el body.
+    // Antes, el interceptor global se metía encima (doble modal) y el reintento
+    // se enredaba: metías la mala, luego la buena, y seguía dando error.
+    let bodyTienePassword = false;
+    try {
+      const d = typeof err.config?.data === 'string' ? JSON.parse(err.config.data) : err.config?.data;
+      bodyTienePassword = !!(d && typeof d === 'object' && 'password' in d);
+    } catch { /* body no-JSON → no aplica */ }
+
     const necesitaPassword =
-      (status === 400 && code === 'PASSWORD_REQUIRED') ||
-      (status === 401 && code === 'PASSWORD_MISMATCH');
+      !bodyTienePassword &&
+      ((status === 400 && code === 'PASSWORD_REQUIRED') ||
+       (status === 401 && code === 'PASSWORD_MISMATCH'));
 
     if (necesitaPassword && err.config && !err.config.__passwordAbort) {
       try {
