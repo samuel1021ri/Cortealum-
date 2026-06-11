@@ -1996,6 +1996,14 @@ export default function SimulacionModal({ventana,onClose,onReporteGenerado}){
   const [unit,          setUnit]          = useState(_unidadDetectada);
   const [activeTab,     setActiveTab]     = useState('vista');
 
+  // FIX v76: detección de móvil para apilar el layout (canvas arriba, panel abajo)
+  const [isMobile, setIsMobile] = useState(typeof window!=='undefined' && window.innerWidth < 760);
+  useEffect(()=>{
+    const onResize=()=>setIsMobile(window.innerWidth < 760);
+    window.addEventListener('resize',onResize);
+    return ()=>window.removeEventListener('resize',onResize);
+  },[]);
+
   useEffect(()=>{
     const body=ventana.id_ventana
       ?{id_ventana:ventana.id_ventana}
@@ -2101,7 +2109,7 @@ export default function SimulacionModal({ventana,onClose,onReporteGenerado}){
           </div>
 
           {/* ── TAB BAR ── */}
-          <div style={{display:'flex',alignItems:'stretch',background:T.bg,borderBottom:`1.5px solid ${T.border}`,paddingLeft:22,flexShrink:0}}>
+          <div style={{display:'flex',alignItems:'stretch',background:T.bg,borderBottom:`1.5px solid ${T.border}`,paddingLeft:22,flexShrink:0,overflowX:'auto',WebkitOverflowScrolling:'touch'}} className="sm-tabbar">
             {TABS.map(tab=>{
               const isActive=activeTab===tab.id;
               return(
@@ -2129,9 +2137,9 @@ export default function SimulacionModal({ventana,onClose,onReporteGenerado}){
               <>
                 {/* ── TAB: VISTA 3D + DESPIECE (UNIFIED) ── */}
                 {activeTab==='vista'&&(
-                  <div style={{display:'grid',gridTemplateColumns:'1fr 280px',gap:0,background:T.bg,borderBottom:`1px solid ${T.border}`}}>
+                  <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 280px',gap:0,background:T.bg,borderBottom:`1px solid ${T.border}`}}>
                     {/* Canvas unificado */}
-                    <div style={{borderRight:`1px solid ${T.border}`,overflow:'hidden'}}>
+                    <div style={{borderRight:isMobile?'none':`1px solid ${T.border}`,borderBottom:isMobile?`1px solid ${T.border}`:'none',overflow:'hidden'}}>
                       {!expanded3D?(
                         <UnifiedCanvas3D
                           diseno={disLabel}
