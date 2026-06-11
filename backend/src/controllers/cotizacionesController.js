@@ -732,6 +732,7 @@ const listar = async (req, res) => {
               ${selectOficial}  AS es_oficial,
               ${selectNotas}    AS notas,
               ${selectFecha}    AS fecha_cotizacion,
+              ${selectEstado}   AS estado_workflow,
               p.nombre_proyecto,
               p.nombre_cliente,
               p.estado          AS estado_proyecto
