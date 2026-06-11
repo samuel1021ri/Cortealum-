@@ -938,30 +938,32 @@ export default function BancoResiduos() {
               <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1rem', marginBottom: 16 }}>
                 Por perfil de aluminio
               </h3>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', margin: '0 -8px' }}>
+              <table style={{ width: '100%', minWidth: isMobile ? 520 : undefined, borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: 'var(--bg-deep)' }}>
                     {['Perfil', 'Disponibles', 'Usados', 'Metros disp.', 'Metros usados'].map(h => (
-                      <th key={h} style={{ padding: '8px 12px', textAlign: 'left', fontFamily: 'var(--font-display)', fontSize: '.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--text-muted)' }}>{h}</th>
+                      <th key={h} style={{ padding: '8px 12px', textAlign: 'left', whiteSpace: 'nowrap', fontFamily: 'var(--font-display)', fontSize: '.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--text-muted)' }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {metricas.por_perfil.map(p => (
                     <tr key={p.referencia_perfil} style={{ borderBottom: '1px solid var(--border)' }}>
-                      <td style={{ padding: '10px 12px' }}>
-                        <span style={{ background: 'var(--primary-light)', color: 'var(--primary)', padding: '2px 9px', borderRadius: 6, fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '.82rem' }}>
+                      <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
+                        <span style={{ background: 'var(--primary-light)', color: 'var(--primary)', padding: '2px 9px', borderRadius: 6, fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '.82rem', display: 'inline-block' }}>
                           {p.referencia_perfil}
                         </span>
                       </td>
-                      <td style={{ padding: '10px 12px', color: 'var(--success)', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{p.disponibles}</td>
-                      <td style={{ padding: '10px 12px', color: 'var(--info)', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{p.usados}</td>
-                      <td style={{ padding: '10px 12px', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: '.85rem' }}>{((p.metros_disponibles_cm||0)/100).toFixed(2)} m</td>
-                      <td style={{ padding: '10px 12px', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: '.85rem' }}>{((p.metros_usados_cm||0)/100).toFixed(2)} m</td>
+                      <td style={{ padding: '10px 12px', color: 'var(--success)', fontWeight: 700, fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>{p.disponibles}</td>
+                      <td style={{ padding: '10px 12px', color: 'var(--info)', fontWeight: 700, fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>{p.usados}</td>
+                      <td style={{ padding: '10px 12px', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: '.85rem', whiteSpace: 'nowrap' }}>{((p.metros_disponibles_cm||0)/100).toFixed(2)} m</td>
+                      <td style={{ padding: '10px 12px', color: 'var(--text-secondary)', fontFamily: 'var(--font-mono)', fontSize: '.85rem', whiteSpace: 'nowrap' }}>{((p.metros_usados_cm||0)/100).toFixed(2)} m</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
           )}
         </div>
@@ -987,11 +989,14 @@ export default function BancoResiduos() {
 
           {config.map(c => (
             <div key={c.clave} style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              padding: '16px 0', borderBottom: '1px solid var(--border)', gap: 20,
+              display: 'flex',
+              flexDirection: isMobile ? 'column' : 'row',
+              justifyContent: 'space-between',
+              alignItems: isMobile ? 'stretch' : 'center',
+              padding: '16px 0', borderBottom: '1px solid var(--border)', gap: isMobile ? 10 : 20,
             }}>
               <div>
-                <p style={{ margin: 0, fontWeight: 700, fontFamily: 'var(--font-mono)', fontSize: '.88rem', color: 'var(--primary)' }}>
+                <p style={{ margin: 0, fontWeight: 700, fontFamily: 'var(--font-mono)', fontSize: '.88rem', color: 'var(--primary)', wordBreak: 'break-word' }}>
                   {c.clave}
                 </p>
                 <p style={{ margin: '3px 0 0', color: 'var(--text-muted)', fontSize: '.8rem' }}>
@@ -1004,7 +1009,7 @@ export default function BancoResiduos() {
                 onChange={e => setEditConfig(ec => ({ ...ec, [c.clave]: e.target.value }))}
                 className="form-control"
                 disabled={!isAdmin}
-                style={{ width: 100, textAlign: 'center', fontFamily: 'var(--font-mono)', fontWeight: 700 }}
+                style={{ width: isMobile ? '100%' : 100, textAlign: 'center', fontFamily: 'var(--font-mono)', fontWeight: 700, flexShrink: 0 }}
               />
             </div>
           ))}
