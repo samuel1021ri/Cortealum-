@@ -558,12 +558,13 @@ export default function BancoResiduos() {
                 </p>
               </div>
             ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+              <table style={{ width: '100%', minWidth: 980, borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: 'var(--bg-deep)', borderBottom: '2px solid var(--border)' }}>
                     {['#', 'Perfil', 'Pieza', 'Ref. ALN', 'Color', 'Longitud', 'Barra original', 'Proyecto origen', 'Dejado por', 'Estado', 'Acciones'].map(h => (
                       <th key={h} style={{
-                        padding: '10px 14px', textAlign: 'left',
+                        padding: '10px 14px', textAlign: 'left', whiteSpace: 'nowrap',
                         fontFamily: 'var(--font-display)', fontSize: '.72rem',
                         fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em',
                         color: 'var(--text-muted)',
@@ -721,6 +722,7 @@ export default function BancoResiduos() {
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
 
             {/* Paginación */}
