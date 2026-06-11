@@ -76,10 +76,28 @@ api.interceptors.response.use(
             message: 'Acción cancelada por el usuario',
           });
         }
-        // Reintentar con la contraseña en el header (más confiable que body
-        // para DELETE; axios serializa body DELETE de forma inconsistente).
+        // Reintentar con la contraseña actualizada.
+        // BUG FIX: algunas eliminaciones (ej. ConfirmDeleteModal) mandan la
+        // contraseña en el BODY ({ data:{ password } }), y el backend lee el
+        // body con prioridad sobre el header. Si solo poníamos la nueva clave en
+        // el header, el reintento seguía usando la clave VIEJA (mala) del body y
+        // SIEMPRE decía "incorrecta". Por eso aquí actualizamos el body también.
+        let retryData = err.config.data;
+        try {
+          if (typeof retryData === 'string' && retryData.includes('password')) {
+            const obj = JSON.parse(retryData);
+            if (obj && typeof obj === 'object' && 'password' in obj) {
+              obj.password = password;
+              retryData = JSON.stringify(obj);
+            }
+          } else if (retryData && typeof retryData === 'object' && 'password' in retryData) {
+            retryData = { ...retryData, password };
+          }
+        } catch { /* si no se puede parsear, se usa el header */ }
+
         return api({
           ...err.config,
+          data: retryData,
           __passwordRetry: true,
           headers: {
             ...(err.config.headers || {}),
