@@ -16,6 +16,16 @@ function CatalogoTab({ tab }) {
   const [modal,   setModal]   = useState(null);
   const [form,    setForm]    = useState({});
 
+  // FIX v80: en celular la tabla del catálogo se desliza de lado (con ancho
+  // mínimo) para que no parta las palabras ("NOMB RE", "Híbrid a"); en pantalla
+  // grande se acomoda sola sin scroll.
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth < 760);
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 760);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
   const load = async () => {
     try { const { data } = await api.get(tab.endpoint); setItems(data); }
     catch { toast.error('Error al cargar'); }
@@ -57,7 +67,8 @@ function CatalogoTab({ tab }) {
         </div>
       ) : (
         <>
-          <table style={{ width:'100%', borderCollapse:'collapse' }}>
+          <div style={{ overflowX:'auto', WebkitOverflowScrolling:'touch' }}>
+          <table style={{ width:'100%', minWidth:isMobile?620:undefined, borderCollapse:'collapse' }}>
             <thead>
               <tr style={{ borderBottom:'2px solid var(--border)' }}>
                 {[
@@ -67,9 +78,9 @@ function CatalogoTab({ tab }) {
                   {label:'',        w:120, align:'right'},
                 ].map((col,i) => (
                   <th key={i} style={{
-                    padding:'10px 20px', textAlign:col.align,
+                    padding:isMobile?'10px 12px':'10px 20px', textAlign:col.align,
                     fontFamily:'var(--font-body)', fontSize:'.72rem', fontWeight:700,
-                    textTransform:'uppercase', letterSpacing:'.08em',
+                    textTransform:'uppercase', letterSpacing:'.08em', whiteSpace:'nowrap',
                     color:'var(--text-muted)', background:'var(--bg-deep)',
                     borderBottom:'1px solid var(--border)',
                     width:col.w, minWidth:col.w==='auto'?undefined:col.w,
@@ -95,15 +106,15 @@ function CatalogoTab({ tab }) {
                     onMouseEnter={e=>e.currentTarget.style.background='#EEF3FA'}
                     onMouseLeave={e=>e.currentTarget.style.background=idx%2===0?'var(--surface)':'var(--surface-2)'}
                   >
-                    <td style={{ padding:'13px 20px', fontFamily:'var(--font-body)', fontWeight:600, fontSize:'.9rem', color:'var(--text-primary)' }}>
+                    <td style={{ padding:isMobile?'12px 12px':'13px 20px', fontFamily:'var(--font-body)', fontWeight:600, fontSize:'.9rem', color:'var(--text-primary)', whiteSpace:'nowrap' }}>
                       {item[tab.nameField]}
                     </td>
-                    <td style={{ padding:'13px 20px', fontSize:'.85rem', color:'var(--text-secondary)' }}>
+                    <td style={{ padding:isMobile?'12px 12px':'13px 20px', fontSize:'.85rem', color:'var(--text-secondary)', minWidth:160 }}>
                       {item.descripcion||'—'}
                     </td>
-                    <td style={{ padding:'13px 20px', textAlign:'center' }}>
+                    <td style={{ padding:isMobile?'12px 12px':'13px 20px', textAlign:'center' }}>
                       <span style={{
-                        display:'inline-block',
+                        display:'inline-block', whiteSpace:'nowrap',
                         fontFamily:'var(--font-body)', fontSize:'.72rem', fontWeight:700,
                         textTransform:'uppercase', letterSpacing:'.06em',
                         padding:'3px 10px', borderRadius:4,
@@ -112,7 +123,7 @@ function CatalogoTab({ tab }) {
                         border: `1px solid ${activo ? '#A7D9B8' : '#F1B3AE'}`,
                       }}>{activo?'Activo':'Inactivo'}</span>
                     </td>
-                    <td style={{ padding:'13px 20px', textAlign:'center' }}>
+                    <td style={{ padding:isMobile?'12px 12px':'13px 20px', textAlign:'center' }}>
                       <div style={{ display:'flex', gap:6, justifyContent:'center' }}>
                         <button onClick={()=>openEditar(item)} style={{
                           display:'flex',alignItems:'center',justifyContent:'center',
@@ -137,6 +148,7 @@ function CatalogoTab({ tab }) {
               })}
             </tbody>
           </table>
+          </div>
           <div style={{ padding:'10px 20px', background:'var(--bg-deep)', borderTop:'1px solid var(--border)', display:'flex', justifyContent:'flex-end' }}>
             <span style={{ fontFamily:'var(--font-mono)', fontSize:'.68rem', color:'var(--text-muted)' }}>
               {items.length} {tab.label.toLowerCase()}
