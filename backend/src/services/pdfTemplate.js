@@ -39,7 +39,10 @@ const fmtNum = (n, dec = 2) => _formatLatino(n, dec);
 const fmtFecha = (iso) => {
   try {
     const d = new Date(iso);
-    return d.toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    // FIX: se fuerza la zona horaria de Colombia para que la fecha del PDF no
+    // dependa de la zona del servidor (Render usa UTC). Sin esto, una cotización
+    // generada de noche en Colombia salía fechada al día siguiente.
+    return d.toLocaleDateString('es-CO', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'America/Bogota' });
   } catch { return '—'; }
 };
 
