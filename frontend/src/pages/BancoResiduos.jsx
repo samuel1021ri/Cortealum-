@@ -460,6 +460,7 @@ export default function BancoResiduos() {
         display: 'flex', gap: 2, marginBottom: 20,
         background: 'var(--bg-deep)', padding: 4, borderRadius: 10,
         border: '1px solid var(--border)',
+        overflowX: isMobile ? 'auto' : 'visible', WebkitOverflowScrolling: 'touch',
       }}>
         {[
           { key: 'banco',    icon: Recycle,    label: 'Banco' },
@@ -473,8 +474,9 @@ export default function BancoResiduos() {
             key={t.key}
             onClick={() => setTab(t.key)}
             style={{
-              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
-              padding: '8px 14px', borderRadius: 8, border: 'none', cursor: 'pointer',
+              flex: isMobile ? '0 0 auto' : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+              padding: isMobile ? '8px 12px' : '8px 14px', borderRadius: 8, border: 'none', cursor: 'pointer',
+              whiteSpace: 'nowrap',
               background: tab === t.key ? 'var(--surface)' : 'transparent',
               color: tab === t.key ? 'var(--primary)' : 'var(--text-muted)',
               fontFamily: 'var(--font-body)', fontWeight: tab === t.key ? 700 : 500,
@@ -482,7 +484,8 @@ export default function BancoResiduos() {
               transition: 'all .15s',
             }}
           >
-            <t.icon size={15} /> {t.label}
+            {/* En celular se acorta "Buscar Best-Fit" → "Best-Fit" para que quepa mejor */}
+            <t.icon size={15} /> {isMobile && t.key === 'buscar' ? 'Best-Fit' : t.label}
           </button>
         ))}
       </div>
