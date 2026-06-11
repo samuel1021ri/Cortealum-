@@ -132,8 +132,15 @@ const migrationsResiduos = [
      COALESCE(SUM(longitud_cm) FILTER (WHERE estado='disponible'), 0) AS metros_disponibles_cm,
      COALESCE(SUM(longitud_cm) FILTER (WHERE estado='usado'),      0) AS metros_reutilizados_cm,
      COUNT(DISTINCT referencia_perfil)                      AS perfiles_distintos,
-     CASE WHEN COUNT(*)>0
-       THEN ROUND(COUNT(*) FILTER (WHERE estado IN ('usado','disponible','reservado'))::NUMERIC / COUNT(*)*100, 1)
+     -- FIX: tasa de reutilización REAL = usados / (usados + descartados).
+     -- Antes contaba 'disponible' y 'reservado' como si fueran reutilizados,
+     -- por eso daba 96.8% con 0 usados (engañoso). Ahora mide, de los residuos
+     -- ya resueltos (usados o descartados), qué % se reutilizó de verdad.
+     -- Si todavía no hay residuos resueltos, da 0 (honesto, no inflado).
+     CASE WHEN COUNT(*) FILTER (WHERE estado IN ('usado','descartado')) > 0
+       THEN ROUND(
+         COUNT(*) FILTER (WHERE estado='usado')::NUMERIC
+         / COUNT(*) FILTER (WHERE estado IN ('usado','descartado')) * 100, 1)
        ELSE 0 END AS tasa_reutilizacion_pct
    FROM residuos_aluminio`,
 ];
