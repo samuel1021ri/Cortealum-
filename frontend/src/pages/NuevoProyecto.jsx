@@ -6,9 +6,17 @@ import toast from 'react-hot-toast';
 
 export default function NuevoProyecto() {
   const navigate = useNavigate();
+  // FIX: la fecha de inicio por defecto se calcula en hora LOCAL, no en UTC.
+  // Antes usaba toISOString() (UTC) y de noche en Colombia (UTC-5) salía el día
+  // siguiente. Ahora arma el YYYY-MM-DD con la fecha local del navegador.
+  const hoyLocal = (() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  })();
+
   const [form, setForm] = useState({
     nombre_proyecto: '', nombre_cliente: '',
-    fecha_inicio: new Date().toISOString().split('T')[0], fecha_fin: '',
+    fecha_inicio: hoyLocal, fecha_fin: '',
     observaciones: ''
   });
   const [loading, setLoading] = useState(false);
