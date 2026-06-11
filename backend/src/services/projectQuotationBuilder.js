@@ -240,7 +240,12 @@ function buildProjectQuotation(payload, opts = {}) {
   const totalConTransporte = +(totalFinal + subTransp).toFixed(2);
 
   const cotNum = String(cot.id_cotizacion || '0').padStart(4, '0');
-  const cotRef = `COT-${new Date(cot.fecha_cotizacion || Date.now()).getFullYear()}-${cotNum}`;
+  // FIX: el año de la referencia se toma en hora de Colombia (no en UTC del
+  // servidor). Antes, una cotización generada la noche del 31-dic salía con el
+  // año siguiente. 'en-CA' con timeZone da YYYY-MM-DD; tomamos los 4 primeros.
+  const cotAnio = new Date(cot.fecha_cotizacion || Date.now())
+    .toLocaleDateString('en-CA', { timeZone: 'America/Bogota' }).slice(0, 4);
+  const cotRef = `COT-${cotAnio}-${cotNum}`;
 
   const empresaDefault = {
     nombre: 'CorteAlum', razon_social: 'CorteAlum S.A.S',
