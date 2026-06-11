@@ -362,8 +362,11 @@ const actualizar = async (req, res) => {
 
 // Helper: calcula la fecha de fin final basado en el estado
 function fechaFinFinal(fecha_fin, nuevoEstado) {
+  // FIX: si se completa sin fecha estimada, se pone HOY en hora de Colombia.
+  // Antes usaba toISOString() (UTC) y el servidor de Render está en UTC, así
+  // que de noche ponía el día siguiente. 'en-CA' devuelve formato YYYY-MM-DD.
   return (nuevoEstado === 'completado' && !fecha_fin)
-    ? new Date().toISOString().split('T')[0]
+    ? new Date().toLocaleDateString('en-CA', { timeZone: 'America/Bogota' })
     : (fecha_fin || null);
 }
 
