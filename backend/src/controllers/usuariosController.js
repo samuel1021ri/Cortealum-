@@ -15,6 +15,79 @@ async function auditar(accion, id_usuario_obj, realizado_por, detalle = null, ca
   } catch (_) {}
 }
 
+// Ejecuta una consulta "opcional" dentro de una transacción usando SAVEPOINT,
+// para que si falla (ej. tabla/columna que no existe en este entorno) NO aborte
+// toda la transacción — solo se revierte ese paso y se sigue.
+async function intentar(conn, sql, params) {
+  await conn.query('SAVEPOINT sp_opt');
+  try {
+    await conn.query(sql, params);
+    await conn.query('RELEASE SAVEPOINT sp_opt');
+  } catch (_) {
+    await conn.query('ROLLBACK TO SAVEPOINT sp_opt');
+  }
+}
+
+/**
+ * Borra un usuario y TODOS sus proyectos en cascada.
+ * Contexto SENA: los usuarios son aprendices que entran, practican y salen; al
+ * borrar al aprendiz se borran también sus proyectos de práctica (ventanas,
+ * materiales, cotizaciones). Todo va en una transacción: si algo falla, se
+ * revierte y se DESACTIVA en su lugar — nunca se deja la base a medias.
+ * Devuelve { accion: 'eliminado' | 'desactivado', proyectos, motivo? }.
+ */
+async function eliminarUsuarioCascada(id, actorId) {
+  const conn = await pool.connect();
+  try {
+    await conn.query('BEGIN');
+
+    // 1) Proyectos del usuario → mismo cascadeo que el borrado de proyecto
+    const { rows: proys } = await conn.query('SELECT id_proyecto FROM proyectos WHERE id_usuario_creador=$1', [id]);
+    for (const { id_proyecto } of proys) {
+      const { rows: vents } = await conn.query('SELECT id_ventana FROM ventanas WHERE id_proyecto=$1', [id_proyecto]);
+      const vids = vents.map(v => v.id_ventana);
+      if (vids.length) await conn.query('DELETE FROM materiales_usados WHERE id_ventana = ANY($1)', [vids]);
+      await conn.query('DELETE FROM ventanas WHERE id_proyecto=$1', [id_proyecto]);
+
+      const { rows: cots } = await conn.query('SELECT id_cotizacion FROM cotizaciones WHERE id_proyecto=$1', [id_proyecto]);
+      const cids = cots.map(c => c.id_cotizacion);
+      if (cids.length) {
+        await conn.query('DELETE FROM cotizacion_detalle_materiales WHERE id_cotizacion = ANY($1)', [cids]);
+        await conn.query('DELETE FROM cotizacion_parametros_mano_obra WHERE id_cotizacion = ANY($1)', [cids]);
+      }
+      await conn.query('DELETE FROM cotizaciones WHERE id_proyecto=$1', [id_proyecto]);
+      await intentar(conn, 'DELETE FROM proyecto_accesos WHERE id_proyecto=$1', [id_proyecto]); // tabla opcional
+      await conn.query('DELETE FROM historial_proyectos WHERE id_proyecto=$1', [id_proyecto]);
+      await conn.query('DELETE FROM proyectos WHERE id_proyecto=$1', [id_proyecto]);
+    }
+
+    // 2) Referencias sueltas que podrían bloquear (se anulan; opcionales)
+    await intentar(conn, 'UPDATE proyectos SET editado_por=NULL WHERE editado_por=$1', [id]);
+    await intentar(conn, 'UPDATE usuarios  SET editado_por=NULL WHERE editado_por=$1', [id]);
+    await intentar(conn, 'DELETE FROM proyecto_accesos WHERE id_usuario=$1', [id]);
+    // Auditoría: se CONSERVA el registro de quién hizo qué, solo se anula la
+    // referencia al usuario borrado para que su FK no bloquee el DELETE.
+    await intentar(conn, 'UPDATE auditoria_usuarios SET realizado_por=NULL  WHERE realizado_por=$1',  [id]);
+    await intentar(conn, 'UPDATE auditoria_usuarios SET id_usuario_obj=NULL WHERE id_usuario_obj=$1', [id]);
+
+    // 3) Borrar el usuario. El resto (auditoría, residuos.creado_por,
+    //    optimización) ya está definido ON DELETE SET NULL en la BD.
+    await conn.query('DELETE FROM usuarios WHERE id_usuario=$1', [id]);
+
+    await conn.query('COMMIT');
+    return { accion: 'eliminado', proyectos: proys.length };
+  } catch (err) {
+    try { await conn.query('ROLLBACK'); } catch (_) {}
+    // Red de seguridad: nunca dejar datos a medias → desactivar.
+    try {
+      await pool.query('UPDATE usuarios SET estado=$1, editado_por=$2, fecha_edicion=NOW() WHERE id_usuario=$3', ['inactivo', actorId, id]);
+    } catch (_) {}
+    return { accion: 'desactivado', proyectos: 0, motivo: err.constraint || err.message };
+  } finally {
+    conn.release();
+  }
+}
+
 // LISTAR con filtros, búsqueda y paginación
 const listar = async (req, res) => {
   try {
@@ -174,35 +247,24 @@ const eliminar = async (req, res) => {
         return res.status(400).json({ error: 'No puedes eliminar el último administrador activo' });
     }
 
-    const { rows: proy } = await pool.query('SELECT 1 FROM proyectos WHERE id_usuario_creador=$1 LIMIT 1', [id]);
-    if (proy.length > 0) {
-      await pool.query('UPDATE usuarios SET estado=$1, editado_por=$2, fecha_edicion=NOW() WHERE id_usuario=$3', ['inactivo', req.user.id, id]);
-      await auditar('eliminar', parseInt(id), req.user.id, `Desactivado (tiene proyectos): ${usr[0].nombre_completo}`);
-      return res.json({ ok: true, accion: 'desactivado', message: `"${usr[0].nombre_completo}" tiene proyectos asociados, así que no se puede borrar físicamente (se perdería el historial). Se desactivó en su lugar.` });
-    }
-
-    // FIX v47: el usuario puede estar referenciado por OTRAS tablas además de
-    // proyectos (residuos creados, auditoría, cotizaciones, historial, etc.).
-    // Antes solo chequeábamos `proyectos`, así que un DELETE con esas otras FK
-    // explotaba con error 23503 → 500 genérico "Error al eliminar usuario", y
-    // el usuario quedaba sin poder borrar ni entender por qué. Ahora, si el
-    // DELETE falla por una FK, caemos a desactivación con un mensaje claro.
-    try {
-      await pool.query('DELETE FROM usuarios WHERE id_usuario=$1', [id]);
-      await auditar('eliminar', null, req.user.id, `Eliminado: ${usr[0].nombre_completo}`);
-      res.json({ ok: true, accion: 'eliminado', message: 'Usuario eliminado' });
-    } catch (errDel) {
-      if (errDel.code === '23503') {
-        // Foreign key violation: tiene registros vinculados en otra tabla.
-        await pool.query('UPDATE usuarios SET estado=$1, editado_por=$2, fecha_edicion=NOW() WHERE id_usuario=$3', ['inactivo', req.user.id, id]);
-        await auditar('eliminar', parseInt(id), req.user.id, `Desactivado (FK ${errDel.constraint || ''}): ${usr[0].nombre_completo}`);
-        return res.json({
-          ok: true,
-          accion: 'desactivado',
-          message: `"${usr[0].nombre_completo}" tiene registros vinculados en el sistema (residuos, cotizaciones o historial), así que no se puede borrar físicamente sin romper esos datos. Se desactivó en su lugar.`,
-        });
-      }
-      throw errDel;
+    // BORRADO REAL: el usuario se borra junto con sus proyectos de práctica.
+    // (Contexto SENA — aprendices que entran y salen). Si por alguna FK
+    // inesperada no se puede borrar del todo, el helper desactiva en su lugar.
+    const r = await eliminarUsuarioCascada(id, req.user.id);
+    if (r.accion === 'eliminado') {
+      await auditar('eliminar', null, req.user.id, `Eliminado (con ${r.proyectos} proyecto[s]): ${usr[0].nombre_completo}`);
+      return res.json({
+        ok: true, accion: 'eliminado',
+        message: r.proyectos
+          ? `Usuario "${usr[0].nombre_completo}" eliminado junto con sus ${r.proyectos} proyecto(s).`
+          : `Usuario "${usr[0].nombre_completo}" eliminado.`,
+      });
+    } else {
+      await auditar('eliminar', parseInt(id), req.user.id, `Desactivado (no se pudo borrar, FK ${r.motivo || ''}): ${usr[0].nombre_completo}`);
+      return res.json({
+        ok: true, accion: 'desactivado',
+        message: `No se pudo borrar del todo a "${usr[0].nombre_completo}" (quedaban registros vinculados). Se desactivó en su lugar.`,
+      });
     }
   } catch (err) {
     console.error('[eliminar usuario]', err.message);
@@ -269,20 +331,13 @@ const accionMasiva = async (req, res) => {
             resultado.errores++; resultado.detalle.push({ id, error: 'Último admin — omitido' }); continue;
           }
         }
-        const { rows: proy } = await pool.query('SELECT 1 FROM proyectos WHERE id_usuario_creador=$1 LIMIT 1',[id]);
-        if (proy.length > 0) {
-          await pool.query('UPDATE usuarios SET estado=$1,editado_por=$2,fecha_edicion=NOW() WHERE id_usuario=$3',['inactivo',req.user.id,id]);
-          resultado.detalle.push({ id, nota: 'Tenía proyectos → desactivado' });
+        // Borrado real en cascada (igual que el individual). Si una FK
+        // inesperada lo impide, el helper desactiva y lo reporta.
+        const rr = await eliminarUsuarioCascada(id, req.user.id);
+        if (rr.accion === 'eliminado') {
+          resultado.detalle.push({ id, nota: rr.proyectos ? `Eliminado con ${rr.proyectos} proyecto(s)` : 'Eliminado' });
         } else {
-          // FIX v47: misma protección FK que el borrado individual.
-          try {
-            await pool.query('DELETE FROM usuarios WHERE id_usuario=$1',[id]);
-          } catch (errDel) {
-            if (errDel.code === '23503') {
-              await pool.query('UPDATE usuarios SET estado=$1,editado_por=$2,fecha_edicion=NOW() WHERE id_usuario=$3',['inactivo',req.user.id,id]);
-              resultado.detalle.push({ id, nota: 'Tenía registros vinculados → desactivado' });
-            } else throw errDel;
-          }
+          resultado.detalle.push({ id, nota: 'No se pudo borrar (registros vinculados) → desactivado' });
         }
         resultado.exitosos++;
       }
