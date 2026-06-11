@@ -738,7 +738,7 @@ export default function Usuarios() {
   const doDel = (u) => confirmDel({
     title: 'Eliminar usuario',
     itemLabel: u.nombre_completo,
-    warningText: 'Si el usuario tiene registros vinculados (proyectos, cotizaciones, etc.) será desactivado en lugar de eliminado físicamente.',
+    warningText: 'Se eliminará el usuario junto con TODOS sus proyectos de práctica (ventanas, materiales y cotizaciones). Esta acción es permanente.',
     onConfirm: async (password) => {
       // FIX: enviar contraseña en el body, como esperan requirePassword middleware
       // y como hacen Proyectos.jsx, Cotizaciones.jsx, Materiales.jsx, etc.
@@ -769,7 +769,7 @@ export default function Usuarios() {
       confirmDel({
         title: `Eliminar ${sel.size} usuario(s)`,
         itemLabel: `${sel.size} usuario(s) seleccionado(s)`,
-        warningText: 'Los que tengan registros vinculados (proyectos, cotizaciones, etc.) serán desactivados en lugar de eliminados.',
+        warningText: 'Se eliminarán los usuarios junto con TODOS sus proyectos de práctica (ventanas, materiales y cotizaciones). Esta acción es permanente.',
         onConfirm: async (password) => {
           try {
             const { data: r } = await api.post('/usuarios/bulk-action', { action, ids:[...sel], password });
