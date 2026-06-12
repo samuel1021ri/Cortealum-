@@ -577,7 +577,7 @@ export default function BancoResiduos() {
                   <tr style={{ background: 'var(--bg-deep)', borderBottom: '2px solid var(--border)' }}>
                     {['#', 'Perfil', 'Pieza', 'Ref. ALN', 'Color', 'Longitud', 'Barra original', 'Proyecto origen', 'Dejado por', 'Estado', 'Acciones'].map(h => (
                       <th key={h} style={{
-                        padding: isMobile ? '9px 10px' : '12px 13px', textAlign: 'left', whiteSpace: 'nowrap',
+                        padding: isMobile ? '9px 10px' : '12px 13px', textAlign: 'left', whiteSpace: isMobile ? 'nowrap' : 'normal',
                         fontFamily: 'var(--font-display)', fontSize: '.72rem',
                         fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em',
                         color: 'var(--text-muted)',
@@ -597,13 +597,13 @@ export default function BancoResiduos() {
                       onMouseEnter={e => e.currentTarget.style.background = 'var(--primary-light)'}
                       onMouseLeave={e => e.currentTarget.style.background = idx % 2 === 0 ? 'var(--surface)' : 'var(--surface-2)'}
                     >
-                      <td style={{ padding: isMobile ? '9px 10px' : '12px 13px', color: 'var(--text-muted)', fontSize: '.8rem', whiteSpace: 'nowrap' }}>
+                      <td style={{ padding: isMobile ? '9px 10px' : '12px 13px', color: 'var(--text-muted)', fontSize: '.8rem', whiteSpace: isMobile ? 'nowrap' : 'normal' }}>
                         {r.id_residuo}
                       </td>
                       <td style={{ padding: isMobile ? '9px 10px' : '12px 13px' }}>
                         <span style={{
                           background: 'var(--primary-light)', color: 'var(--primary)',
-                          padding: '2px 9px', borderRadius: 6, display: 'inline-block', whiteSpace: 'nowrap',
+                          padding: '2px 9px', borderRadius: 6, display: 'inline-block', whiteSpace: isMobile ? 'nowrap' : 'normal',
                           fontFamily: 'var(--font-mono)', fontWeight: 700, fontSize: '.8rem',
                         }}>
                           {r.referencia_perfil}
@@ -620,7 +620,7 @@ export default function BancoResiduos() {
                             padding: '2px 8px', borderRadius: 5,
                             fontSize: '.74rem', fontWeight: 700,
                             textTransform: 'uppercase', letterSpacing: '.04em',
-                            whiteSpace: 'nowrap',
+                            whiteSpace: isMobile ? 'nowrap' : 'normal',
                           }}>
                             {r.ubicacion_pieza}
                           </span>
@@ -639,14 +639,14 @@ export default function BancoResiduos() {
                         fontFamily: 'var(--font-mono)',
                         fontSize: '.78rem',
                         fontWeight: 700,
-                        color: r.referencia_aln ? 'var(--text-primary)' : 'var(--text-muted)', whiteSpace: 'nowrap',
+                        color: r.referencia_aln ? 'var(--text-primary)' : 'var(--text-muted)', whiteSpace: isMobile ? 'nowrap' : 'normal',
                       }}>
                         {r.referencia_aln || '—'}
                       </td>
-                      <td style={{ padding: isMobile ? '9px 10px' : '12px 13px', color: 'var(--text-secondary)', fontSize: '.82rem', whiteSpace: 'nowrap' }}>
+                      <td style={{ padding: isMobile ? '9px 10px' : '12px 13px', color: 'var(--text-secondary)', fontSize: '.82rem', whiteSpace: isMobile ? 'nowrap' : 'normal' }}>
                         {r.color_perfil || '—'}
                       </td>
-                      <td style={{ padding: isMobile ? '9px 10px' : '12px 13px', whiteSpace: 'nowrap' }}>
+                      <td style={{ padding: isMobile ? '9px 10px' : '12px 13px', whiteSpace: isMobile ? 'nowrap' : 'normal' }}>
                         <span style={{
                           fontFamily: 'var(--font-mono)', fontWeight: 800,
                           color: 'var(--success)', fontSize: '1rem',
@@ -654,7 +654,7 @@ export default function BancoResiduos() {
                           {r.longitud_cm} <span style={{ fontSize: '.7rem', fontWeight: 500, color: 'var(--text-muted)' }}>cm</span>
                         </span>
                       </td>
-                      <td style={{ padding: isMobile ? '9px 10px' : '12px 13px', color: 'var(--text-muted)', fontSize: '.8rem', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap' }}>
+                      <td style={{ padding: isMobile ? '9px 10px' : '12px 13px', color: 'var(--text-muted)', fontSize: '.8rem', fontFamily: 'var(--font-mono)', whiteSpace: isMobile ? 'nowrap' : 'normal' }}>
                         {r.longitud_original_cm ? `${r.longitud_original_cm} cm` : '—'}
                       </td>
                       {/* FIX v39: "Proyecto origen" ahora muestra SOLO el
@@ -676,7 +676,7 @@ export default function BancoResiduos() {
                           {r.creado_por_nombre || '—'}
                         </div>
                       </td>
-                      <td style={{ padding: isMobile ? '9px 10px' : '12px 13px', whiteSpace: 'nowrap' }}>
+                      <td style={{ padding: isMobile ? '9px 10px' : '12px 13px', whiteSpace: isMobile ? 'nowrap' : 'normal' }}>
                         <EstadoBadge estado={r.estado} />
                         {r.minutos_reserva_restantes !== null && r.minutos_reserva_restantes !== undefined && (
                           <div style={{ fontSize: '.68rem', color: r.minutos_reserva_restantes < 5 ? 'var(--danger)' : 'var(--warning)', marginTop: 2 }}>
