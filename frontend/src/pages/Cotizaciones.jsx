@@ -152,6 +152,14 @@ export default function Cotizaciones() {
   const [selected, setSelected] = useState(null);
   const [filtroEstado, setFiltroEstado] = useState('todos');
   const [filtroFecha, setFiltroFecha] = useState({ desde: '', hasta: '' });
+
+  // Responsive: en celular la tabla (9 columnas) se desliza con ancho mínimo.
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth < 820);
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 820);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
   const { confirm: confirmDelete, modal: deleteModal } = useConfirmDelete();
 
   useEffect(() => {
@@ -325,7 +333,7 @@ export default function Cotizaciones() {
           </div>
         ) : (
           <div style={{ overflowX:'auto' }}>
-            <table style={{ width:'100%', borderCollapse:'collapse', tableLayout:'fixed' }}>
+            <table style={{ width:'100%', minWidth: isMobile ? 820 : undefined, borderCollapse:'collapse', tableLayout:'fixed' }}>
               <colgroup>
                 <col style={{ width:'17%' }}/><col style={{ width:'12%' }}/><col style={{ width:'14%' }}/>
                 <col style={{ width:'7%' }}/><col style={{ width:'10%' }}/><col style={{ width:'9%' }}/>
