@@ -110,6 +110,14 @@ const STYLE = `
   .op-btn.primary:hover:not(:disabled){background:${T.greenLt}}
   .op-btn.blue{background:${T.blue};color:#fff;border-color:${T.blue}}
   .op-btn.blue:hover:not(:disabled){background:${T.blueLt}}
+
+  /* Responsive: en celular la rejilla de resumen se apila y las tablas
+     internas se deslizan de lado en vez de aplastarse. */
+  @media (max-width: 720px){
+    .op-resumen-grid{grid-template-columns:1fr !important}
+    .op-tabla-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .op-tabla-scroll > table{min-width:480px}
+  }
 `;
 
 // ── Pequeño SVG de barra (versión inline, estilo SimulacionModal) ───────────
@@ -211,6 +219,7 @@ function ListaCortesDetalle({ cortes }) {
         {open ? 'Ocultar detalle' : `Ver detalle de ${cortes.length} corte${cortes.length>1?'s':''}`}
       </button>
       {open && (
+        <div className="op-tabla-scroll">
         <table style={{
           width:'100%', marginTop:6, borderCollapse:'collapse',
           fontFamily:T.font, fontSize:'.68rem',
@@ -255,6 +264,7 @@ function ListaCortesDetalle({ cortes }) {
             })}
           </tbody>
         </table>
+        </div>
       )}
     </div>
   );
@@ -736,7 +746,7 @@ function BancoTab({ data }) {
   return (
     <>
       {/* Resumen */}
-      <div style={{
+      <div className="op-resumen-grid" style={{
         display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:14,
       }}>
         <div style={{
