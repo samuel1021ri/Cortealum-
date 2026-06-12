@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   X, DollarSign, Loader, FileDown, Plus, Trash2,
   ChevronRight, ChevronLeft, CheckCircle, Users, Truck,
@@ -272,6 +272,7 @@ function VentanaCotizacion({ ventana, idx, onUpdate }) {
               {/* ── PERFILES ── */}
               <div style={{ fontSize:'.6rem', fontWeight:800, textTransform:'uppercase', color:'#0f172a', marginBottom:6 }}>🔩 Perfiles</div>
               <div style={{ borderRadius:8, overflow:'hidden', border:'1px solid var(--border)', marginBottom:14 }}>
+                <div style={{ overflowX:'auto', WebkitOverflowScrolling:'touch' }}>
                 <table style={{ width:'100%', borderCollapse:'collapse', fontSize:'.78rem' }}>
                   <thead>
                     <tr style={{ background:'var(--steel-800)' }}>
@@ -353,6 +354,7 @@ function VentanaCotizacion({ ventana, idx, onUpdate }) {
                     })}
                   </tbody>
                 </table>
+                </div>
               </div>
 
               {/* ── VIDRIOS (tabla profesional con fórmulas visibles) ── */}
@@ -366,6 +368,7 @@ function VentanaCotizacion({ ventana, idx, onUpdate }) {
                   </div>
 
                   <div style={{ borderRadius:8, overflow:'hidden', border:'1px solid #bfdbfe', marginBottom:14 }}>
+                    <div style={{ overflowX:'auto', WebkitOverflowScrolling:'touch' }}>
                     <table style={{ width:'100%', borderCollapse:'collapse', fontSize:'.74rem' }}>
                       <thead>
                         <tr style={{ background:'var(--steel-800)' }}>
@@ -470,6 +473,7 @@ function VentanaCotizacion({ ventana, idx, onUpdate }) {
                         </tr>
                       </tbody>
                     </table>
+                    </div>
                   </div>
 
                   {/* MENSAJES DE VALIDACIÓN */}
@@ -486,6 +490,7 @@ function VentanaCotizacion({ ventana, idx, onUpdate }) {
                 <>
                   <div style={{ fontSize:'.6rem', fontWeight:800, textTransform:'uppercase', color:'#059669', marginBottom:6 }}>🔧 Accesorios</div>
                   <div style={{ borderRadius:8, overflow:'hidden', border:'1px solid #bbf7d0', marginBottom:14 }}>
+                    <div style={{ overflowX:'auto', WebkitOverflowScrolling:'touch' }}>
                     <table style={{ width:'100%', borderCollapse:'collapse', fontSize:'.78rem' }}>
                       <thead>
                         <tr style={{ background:'var(--steel-800)' }}>
@@ -520,6 +525,7 @@ function VentanaCotizacion({ ventana, idx, onUpdate }) {
                         ))}
                       </tbody>
                     </table>
+                    </div>
                   </div>
                 </>
               )}
@@ -550,6 +556,14 @@ export default function CotizacionModal({
   const [ventanasData,setVentanasData]= useState({});
   const [resultado,   setResultado]   = useState(null);
   const [loading,     setLoading]     = useState(false);
+
+  // Responsive: en celular las rejillas de 4/3 columnas se apilan a 2/1.
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth < 700);
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 700);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   const calcDias = (a,b) => (!a||!b) ? 1 : Math.max(1, Math.round((new Date(b)-new Date(a))/86400000));
 
@@ -778,7 +792,7 @@ export default function CotizacionModal({
                   <Users size={13} color="rgba(255,255,255,.6)"/>
                   <span style={{ fontSize:'.58rem', fontWeight:800, textTransform:'uppercase', color:'rgba(255,255,255,.7)' }}>Personal y Transporte</span>
                 </div>
-                <div style={{ padding:'14px 16px', display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:14 }}>
+                <div style={{ padding:'14px 16px', display:'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4,1fr)', gap:14 }}>
                   {[
                     {key:'cantidad_personas',      Icon:Users,  label:'Personas en el proyecto',            ph:'1',          hint:'Número de trabajadores'},
                     {key:'transporte_estructuras', Icon:Truck,  label:'Transporte estructuras (COP)',        ph:'Ej: 150000', hint:'Flete de perfiles y vidrios'},
@@ -803,7 +817,7 @@ export default function CotizacionModal({
                   <Package size={13} color="rgba(255,255,255,.6)"/>
                   <span style={{ fontSize:'.58rem', fontWeight:800, textTransform:'uppercase', color:'rgba(255,255,255,.7)' }}>Mano de Obra y Financiero</span>
                 </div>
-                <div style={{ padding:'14px 16px', display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14 }}>
+                <div style={{ padding:'14px 16px', display:'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(3,1fr)', gap:14 }}>
                   {[
                     {key:'valor_diario_mano_obra_oficial', label:'Valor diario M.O. Oficial (COP) *', ph:'Ej: 98000'},
                     {key:'mano_obra_pct_adicional',        label:'Incremento mano de obra (%)',       ph:'50'},
@@ -835,7 +849,7 @@ export default function CotizacionModal({
               {vd>0&&(
                 <div style={{ background:'linear-gradient(135deg,var(--steel-900),var(--steel-800))', borderRadius:12, padding:'14px 16px' }}>
                   <div style={{ fontSize:'.55rem', fontWeight:800, textTransform:'uppercase', color:'rgba(255,255,255,.35)', marginBottom:10 }}>Vista previa</div>
-                  <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:8 }}>
+                  <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4,1fr)', gap:8 }}>
                     <StatCard label="M. de obra"   value={fmt(subtotalMO)}             sub={`${dias}d · ${personas}p`} color="#60a5fa"/>
                     <StatCard label="Transporte"   value={fmt(transpEst+transpPers)}   sub="est. + personal"            color="#a78bfa"/>
                     <StatCard label="Instalación"  value={instalacionVal>0?fmt(instalacionVal):'—'} sub="aparte"        color="#fbbf24"/>
@@ -876,7 +890,7 @@ export default function CotizacionModal({
                       </div>
                     ))}
                   </div>
-                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'5px 24px' }}>
+                  <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap:'5px 24px' }}>
                     {[
                       ['Subtotal materiales', fmt(subtotalMat), 'rgba(255,255,255,.5)'],
                       [`Recargo (${form.recargo_materiales_pct}%)`, fmt(conRecargo-subtotalMat), 'rgba(255,255,255,.5)'],
@@ -919,7 +933,7 @@ export default function CotizacionModal({
                     <CheckCircle size={12}/> Guardada
                   </div>
                 </div>
-                <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:8 }}>
+                <div style={{ display:'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4,1fr)', gap:8 }}>
                   <StatCard label="Materiales" value={fmt(conRecargo)}             color="#94a3b8"/>
                   <StatCard label="M. de Obra" value={fmt(subtotalMO)}             color="#60a5fa"/>
                   <StatCard label="Transporte" value={fmt(transpEst+transpPers)}   color="#a78bfa"/>
