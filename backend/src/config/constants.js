@@ -40,26 +40,25 @@ module.exports = {
   /**
    * MARGEN DE PÉRDIDA OPERATIVA (cm).
    *
-   * En la realidad, de cada barra de 600 cm no se aprovechan los 600 cm
-   * completos. Se pierden:
-   *   - ~3-4 cm por kerf (espesor de sierra acumulado en 10-12 cortes)
-   *   - 10-20 cm de cabos/cabos defectuosos y residuo final no aprovechable
+   * AJUSTE (estandarización con los Excel de cálculo y la guía Homecenter):
+   * antes valía 20, lo que hacía que el precio por cm se calculara sobre una
+   * longitud útil de 580 cm en vez de los 600 cm nominales de fábrica:
    *
-   * Por eso el precio por cm cobrado al cliente se calcula sobre la
-   * longitud ÚTIL APROVECHABLE, no sobre los 600 cm físicos:
+   *   $/cm = precio_barra ÷ (600 - 20) = precio_barra / 580   ← ~3.4% oculto
    *
-   *   $/cm = precio_barra ÷ (longitud_barra - MARGEN_PERDIDA_CM)
+   * Ese ~3.4% era un recargo por desperdicio que NO existe en los Excel de
+   * cálculo (la fuente de verdad) y además duplicaba el desperdicio que ya
+   * cubre el recargo de materiales (25%) visible en el Resumen Económico.
    *
-   * Con margen=20 y barra=600 → $/cm = precio_barra / 580
-   * (≈ 3.4% más que el precio "ingenuo" $/cm = precio_barra/600).
+   * Ahora vale 0 → el precio se calcula sobre los 600 cm completos:
    *
-   * Ese ~3.4% extra es lo que cubre el desperdicio operativo real y
-   * permite recuperar el 100% del costo de la barra a lo largo de
-   * varios proyectos. Si subes este valor, le cobras más al cliente
-   * por cm (más cobertura contra pérdida). Si lo bajas, le cobras menos
-   * (riesgo de pérdida si tu operación tiene mucho desperdicio real).
+   *   $/cm = precio_barra ÷ 600
+   *
+   * Todo el desperdicio se cobra UNA sola vez, vía el recargo del 25%.
+   * Si algún día quieres volver a cobrar una merma fija por barra, sube este
+   * valor (en cm) o usa la variable de entorno MARGEN_PERDIDA_CM.
    */
-  MARGEN_PERDIDA_CM: num('MARGEN_PERDIDA_CM', 20),
+  MARGEN_PERDIDA_CM: num('MARGEN_PERDIDA_CM', 0),
 
   // ── Banco de residuos ────────────────────────────────────────────────────
   /**
