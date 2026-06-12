@@ -346,9 +346,10 @@ export default function VentanaModal({ idProyecto, catData, ventanaEdit, onClose
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
+            flexWrap: 'wrap',
             gap: 12,
           }}>
-            <div>
+            <div style={{ flex: '1 1 200px', minWidth: 0 }}>
               <div style={{ fontSize: '.66rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.08em', color: '#475569', marginBottom: 2 }}>
                 Unidad de medida
               </div>
@@ -356,7 +357,7 @@ export default function VentanaModal({ idProyecto, catData, ventanaEdit, onClose
                 Se aplica a entrada y resultados (vano, perfiles, vidrios, felpas, empaques).
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 0, borderRadius: 8, overflow: 'hidden', border: '1.5px solid #cbd5e1' }}>
+            <div style={{ display: 'flex', gap: 0, borderRadius: 8, overflow: 'hidden', border: '1.5px solid #cbd5e1', flexShrink: 0 }}>
               {['cm', 'mm'].map(u => (
                 <button
                   key={u}
