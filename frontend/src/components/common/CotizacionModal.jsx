@@ -772,7 +772,9 @@ export default function CotizacionModal({
                     <div style={{ width:22, height:22, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', background: step>i+1?'var(--success)':step===i+1?'var(--primary)':'rgba(255,255,255,.1)', fontSize:'.6rem', fontWeight:900, color:'rgba(255,255,255,.8)' }}>
                       {step>i+1?<CheckCircle size={11}/>:i+1}
                     </div>
-                    <span style={{ fontSize:'.52rem', fontWeight:700, color:step===i+1?'rgba(255,255,255,.9)':'rgba(255,255,255,.3)', textTransform:'uppercase', letterSpacing:'.06em' }}>{l}</span>
+                    {!isMobile && (
+                      <span style={{ fontSize:'.52rem', fontWeight:700, color:step===i+1?'rgba(255,255,255,.9)':'rgba(255,255,255,.3)', textTransform:'uppercase', letterSpacing:'.06em' }}>{l}</span>
+                    )}
                   </div>
                   {i<STEPS.length-1&&<div style={{ width:14, height:1, background:'rgba(255,255,255,.12)' }}/>}
                 </div>
